@@ -1,7 +1,5 @@
-import { useCallback, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Tabs, TabsProps } from 'antd';
-import ConfigureIcon from 'assets/AlertHistory/ConfigureIcon';
 import HeaderRightSection from 'components/HeaderRightSection/HeaderRightSection';
 import ROUTES from 'constants/routes';
 import AllAlertRules from 'container/ListAlertRules';
@@ -10,14 +8,20 @@ import RoutingPolicies from 'container/RoutingPolicies';
 import TriggeredAlerts from 'container/TriggeredAlerts';
 import { useSafeNavigate } from 'hooks/useSafeNavigate';
 import useUrlQuery from 'hooks/useUrlQuery';
-import { Cable, GalleryVerticalEnd, Pyramid } from '@signozhq/icons';
+import {
+	Cable,
+	CalendarOff,
+	GalleryVerticalEnd,
+	Pyramid,
+	Split,
+} from '@signozhq/icons';
 import AlertDetails from 'pages/AlertDetails';
 import ChannelsEdit from 'pages/ChannelsEdit';
 import ChannelsNew from 'pages/ChannelsNew';
 
 import NotificationChannels from './NotificationChannels/NotificationChannels';
 
-import { AlertListSubTabs, AlertListTabs } from './types';
+import { AlertListTabs } from './types';
 
 import './AlertList.styles.scss';
 
@@ -27,46 +31,11 @@ function AllAlertList(): JSX.Element {
 	const { safeNavigate } = useSafeNavigate();
 
 	const tab = urlQuery.get('tab');
-	const subTab = urlQuery.get('subTab');
 	const isAlertHistory = location.pathname === ROUTES.ALERT_HISTORY;
 	const isAlertOverview = location.pathname === ROUTES.ALERT_OVERVIEW;
 	const isChannelsNew = location.pathname === ROUTES.CHANNELS_NEW;
 	const isChannelsEdit = location.pathname.startsWith('/alerts/channels/edit/');
 	const isChannelDetails = isChannelsNew || isChannelsEdit;
-
-	const handleConfigurationTabChange = useCallback(
-		(subTab: string): void => {
-			const queryParams = new URLSearchParams();
-
-			queryParams.set('tab', AlertListTabs.CONFIGURATION);
-			queryParams.set('subTab', subTab);
-			safeNavigate(`/alerts?${queryParams.toString()}`);
-		},
-		[safeNavigate],
-	);
-
-	const configurationTab = useMemo(() => {
-		const tabs = [
-			{
-				label: 'Planned Downtime',
-				key: AlertListSubTabs.PLANNED_DOWNTIME,
-				children: <PlannedDowntime />,
-			},
-			{
-				label: 'Routing Policies',
-				key: AlertListSubTabs.ROUTING_POLICIES,
-				children: <RoutingPolicies />,
-			},
-		];
-		return (
-			<Tabs
-				className="configuration-tabs"
-				activeKey={subTab || AlertListSubTabs.PLANNED_DOWNTIME}
-				items={tabs}
-				onChange={handleConfigurationTabChange}
-			/>
-		);
-	}, [subTab, handleConfigurationTabChange]);
 
 	const items: TabsProps['items'] = [
 		{
@@ -112,12 +81,22 @@ function AllAlertList(): JSX.Element {
 		{
 			label: (
 				<div className="periscope-tab top-level-tab">
-					<ConfigureIcon width={14} height={14} />
-					Configuration
+					<Split size={14} />
+					Routing Policies
 				</div>
 			),
-			key: AlertListTabs.CONFIGURATION,
-			children: configurationTab,
+			key: AlertListTabs.ROUTING_POLICIES,
+			children: <RoutingPolicies />,
+		},
+		{
+			label: (
+				<div className="periscope-tab top-level-tab">
+					<CalendarOff size={14} />
+					Planned Downtime
+				</div>
+			),
+			key: AlertListTabs.PLANNED_DOWNTIME,
+			children: <PlannedDowntime />,
 		},
 	];
 
@@ -140,15 +119,6 @@ function AllAlertList(): JSX.Element {
 				const queryParams = new URLSearchParams();
 
 				queryParams.set('tab', tab);
-
-				// If navigating to Configuration tab, set default subTab
-				if (tab === AlertListTabs.CONFIGURATION) {
-					const currentSubTab = subTab || AlertListSubTabs.PLANNED_DOWNTIME;
-					queryParams.set('subTab', currentSubTab);
-				} else {
-					// Clear subTab when navigating out of Configuration tab
-					queryParams.delete('subTab');
-				}
 
 				safeNavigate(`/alerts?${queryParams.toString()}`);
 			}}
