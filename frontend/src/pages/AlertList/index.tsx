@@ -86,7 +86,11 @@ function AllAlertList(): JSX.Element {
 				</div>
 			),
 			key: AlertListTabs.ROUTING_POLICIES,
-			children: <RoutingPolicies />,
+			children: (
+				<div className="alert-rules-container">
+					<RoutingPolicies />
+				</div>
+			),
 		},
 		{
 			label: (
@@ -96,7 +100,11 @@ function AllAlertList(): JSX.Element {
 				</div>
 			),
 			key: AlertListTabs.PLANNED_DOWNTIME,
-			children: <PlannedDowntime />,
+			children: (
+				<div className="alert-rules-container">
+					<PlannedDowntime />
+				</div>
+			),
 		},
 	];
 
